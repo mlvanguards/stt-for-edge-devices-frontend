@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Mic, MicOff, Trash2, Circle } from "lucide-react";
+import { Mic, Trash2, Play } from "lucide-react";
 
 interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob, transcript: string) => void;
@@ -10,9 +10,21 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<number | null>(null);
   const startYRef = useRef<number>(0);
   const chunksRef = useRef<Blob[]>([]);
+  const isMobile = window.matchMedia("(pointer: coarse)").matches;
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      if (timerRef.current) {
+        window.clearInterval(timerRef.current);
+      }
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsDragging(false);
+    }
+  };
 
   const startRecording = async () => {
     try {
@@ -27,7 +39,6 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
 
       recorder.onstop = () => {
         if (!isDragging) {
-          // Only complete if not dragged to cancel
           const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
           onRecordingComplete(audioBlob, "Voice message");
         }
@@ -40,8 +51,7 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
       recorder.start();
       setIsRecording(true);
 
-      // Start duration timer
-      timerRef.current = setInterval(() => {
+      timerRef.current = window.setInterval(() => {
         setRecordingDuration((prev) => prev + 1);
       }, 1000);
     } catch (err) {
@@ -49,18 +59,29 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
     }
   };
 
+  // Handle mouse events
+  const handleMouseDown = () => {
+    if (!isMobile) startRecording();
+  };
+
+  const handleMouseUp = () => {
+    if (!isMobile) stopRecording();
+  };
+
+  // Handle touch events
   const handleTouchStart = (e: React.TouchEvent) => {
-    startYRef.current = e.touches[0].clientY;
-    startRecording();
+    if (isMobile) {
+      startYRef.current = e.touches[0].clientY;
+      startRecording();
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (isRecording) {
+    if (isMobile && isRecording) {
       const currentY = e.touches[0].clientY;
       const diff = startYRef.current - currentY;
 
       if (diff > 50) {
-        // Threshold to show cancel state
         setIsDragging(true);
       } else {
         setIsDragging(false);
@@ -69,12 +90,7 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
   };
 
   const handleTouchEnd = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      clearInterval(timerRef.current);
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setIsDragging(false);
-    }
+    if (isMobile) stopRecording();
   };
 
   const formatDuration = (seconds: number) => {
@@ -84,43 +100,58 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
   };
 
   return (
-    <div className="relative">
-      {isRecording && (
-        <div className="absolute left-0 right-0 bottom-full mb-4 flex justify-center">
-          <div
-            className={`px-4 py-2 rounded-full ${
-              isDragging ? "bg-red-500" : "bg-gray-800"
-            } text-white text-sm flex items-center space-x-2`}
-          >
-            {isDragging ? (
-              <>
-                <Trash2 className="text-white" size={18} />
-                <span>Release to cancel</span>
-              </>
-            ) : (
-              <>
-                <span className="animate-pulse">●</span>
-                <span>{formatDuration(recordingDuration)}</span>
-                <span className="text-gray-300">Slide up to cancel</span>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+    <div className="relative mx-auto">
+      <div className="flex flex-col items-center relative">
+        {/* Record button */}
+        <button
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className={`min-w-14 h-14 md:min-w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-200
+          hover:opacity-90 active:scale-95
+          ${isRecording ? "bg-red-500 scale-110" : "bg-[#F27405]"}`}
+        >
+          {isRecording ? (
+            <Mic className="text-white" size={isMobile ? 24 : 28} />
+          ) : (
+            <Play className="text-white" size={isMobile ? 24 : 28} />
+          )}
+        </button>
 
-      <button
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all
-          ${isRecording ? "bg-red-500 scale-125" : "bg-[#F27405]"}`}
-      >
-        {isRecording ? (
-          <Mic className="text-white" size={24} />
-        ) : (
-          <MicOff className="text-white" size={24} />
-        )}
-      </button>
+        {/* Recording status indicator */}
+        <div className="absolute -top-[60px] md:top-[5px] md:left-[130px] min-h-[40px] flex justify-center items-center">
+          {isRecording && (
+            <div
+              className={`px-6 w-max py-3 rounded-full transition-all duration-200 ${
+                isDragging ? "bg-red-500" : "bg-gray-800 md:bg-transparent"
+              } text-white text-sm md:text-base flex items-center gap-3 shadow-lg`}
+            >
+              {isDragging ? (
+                <>
+                  <Trash2 className="text-white" size={isMobile ? 18 : 20} />
+                  <span>Release to cancel</span>
+                </>
+              ) : (
+                <>
+                  <span className="animate-pulse text-red-500">●</span>
+                  <span>{formatDuration(recordingDuration)}</span>
+                  <span className="text-gray-300">
+                    {isMobile ? "Slide up to cancel" : "Release to stop"}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Instructions text */}
+      <p className="mt-4 text-sm md:text-base text-gray-400 text-center w-full  ">
+        {isMobile ? "Hold and slide up to cancel" : "Click and hold to record"}
+      </p>
     </div>
   );
 };
