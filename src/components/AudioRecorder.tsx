@@ -94,7 +94,7 @@ const AudioRecorder = ({
   };
 
   const handleTouchEnd = () => {
-    if (isMobile) stopRecording();
+    stopRecording();
   };
 
   const formatDuration = (seconds: number) => {
@@ -114,9 +114,11 @@ const AudioRecorder = ({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className={`min-w-14 h-14 md:min-w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-200
-          hover:opacity-90 active:scale-95
-          ${isRecording ? "bg-red-500 scale-110" : "bg-[#F27405]"}`}
+          className={`min-w-14 h-14 md:min-w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-200 hover:opacity-90 active:scale-95 ${
+            disabled
+              ? "opacity-50 cursor-default hover:opacity-50"
+              : "cursor-pointer"
+          } ${isRecording ? "bg-red-500 scale-110" : "bg-[#F27405]"}`}
           disabled={disabled}
         >
           {isRecording ? (

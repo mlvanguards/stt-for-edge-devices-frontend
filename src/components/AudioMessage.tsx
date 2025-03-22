@@ -48,7 +48,7 @@ const AudioMessage = ({ audioUrl, transcript, isUser }: AudioMessageProps) => {
         ${
           isUser
             ? "bg-gradient-to-br from-[#F27405] to-[#F1B441] text-white"
-            : "bg-gray-100 text-gray-800"
+            : "text-gray-100"
         }`}
       >
         <div className="flex items-center space-x-2 p-2">
@@ -85,7 +85,7 @@ const AudioMessage = ({ audioUrl, transcript, isUser }: AudioMessageProps) => {
         </div>
 
         <p
-          className={`text-sm px-2 pb-1 ${isUser ? "text-white/90" : "text-gray-600"}`}
+          className={`text-sm px-2 pb-1 ${isUser ? "text-white/90" : "text-gray-100"}`}
         >
           {transcript}
         </p>

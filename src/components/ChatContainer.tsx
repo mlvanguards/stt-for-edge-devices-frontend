@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import AudioMessage from "./AudioMessage";
 import AudioRecorder from "./AudioRecorder";
 import ChatInitializer from "./ChatInitializer";
@@ -7,8 +8,14 @@ import { useConversation } from "../hooks/useConversation";
 const ChatContainer = () => {
   const { history, currentConversation, setCurrentConversation } =
     useConversationStore();
-  const { createConversation, sendAudioMessage, isCreating, isSendingAudio } =
-    useConversation();
+  const {
+    isCreating,
+    isSendingAudio,
+    isFetching,
+    createConversation,
+    sendAudioMessage,
+    fetchConversation,
+  } = useConversation();
 
   const onNewRecording = async (blob: Blob) => {
     if (!currentConversation) {
@@ -20,6 +27,13 @@ const ChatContainer = () => {
       currentConversation?.conversation_id || ""
     );
   };
+
+  useEffect(() => {
+    if (currentConversation) {
+      fetchConversation(currentConversation.conversation_id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -60,7 +74,7 @@ const ChatContainer = () => {
       <div className="flex items-center space-x-4">
         <AudioRecorder
           onRecordingComplete={onNewRecording}
-          disabled={isCreating || isSendingAudio}
+          disabled={isCreating || isSendingAudio || isFetching}
         />
       </div>
     </>
