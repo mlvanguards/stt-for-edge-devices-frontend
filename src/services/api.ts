@@ -12,19 +12,14 @@ export interface ConversationResponse {
   conversation_id: string;
   system_prompt: string;
   voice_id: string;
-  messages: any[];
+  messages: string[];
 }
 
 export interface ChatResponse {
   conversation_id: string;
   transcription: string;
-  raw_transcription: string;
-  segment_transcriptions: any[];
-  num_segments: number;
   response: string;
   model: string;
-  usage: any;
-  conversation_history: any[];
   tts_audio_base64: string | null;
 }
 

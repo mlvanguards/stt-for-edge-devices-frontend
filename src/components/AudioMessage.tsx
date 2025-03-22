@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { Play, Pause } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Play, Pause, Loader2 } from "lucide-react";
+import { api } from "../services/api";
+import { useVoiceStore } from "../stores/voiceStore";
 
 interface AudioMessageProps {
   audioUrl: string;
@@ -12,6 +14,19 @@ const AudioMessage = ({ audioUrl, transcript, isUser }: AudioMessageProps) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [audioElement] = useState(new Audio(audioUrl));
+
+  const { selectedVoice } = useVoiceStore();
+  const [isLoadingVoice, setIsLoadingVoice] = useState(false);
+  const [ttsAudio, setTtsAudio] = useState<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (ttsAudio) {
+        ttsAudio.pause();
+        ttsAudio.src = "";
+      }
+    };
+  }, [ttsAudio]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -26,6 +41,44 @@ const AudioMessage = ({ audioUrl, transcript, isUser }: AudioMessageProps) => {
       audioElement.play();
     }
     setIsPlaying(!isPlaying);
+  };
+
+  const handleTextToSpeech = async () => {
+    if (isPlaying && ttsAudio) {
+      ttsAudio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    try {
+      setIsLoadingVoice(true);
+      const response = await api.textToSpeech(
+        transcript,
+        selectedVoice?.voice_id
+      );
+
+      const binaryString = window.atob(response.audio_base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const audioBlob = new Blob([bytes], { type: "audio/wav" });
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      const newAudio = new Audio(audioUrl);
+      newAudio.onended = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      setTtsAudio(newAudio);
+      setIsPlaying(true);
+      newAudio.play();
+    } catch (error) {
+      console.error("Error generating speech:", error);
+    } finally {
+      setIsLoadingVoice(false);
+    }
   };
 
   audioElement.onloadedmetadata = () => {
@@ -53,11 +106,13 @@ const AudioMessage = ({ audioUrl, transcript, isUser }: AudioMessageProps) => {
       >
         <div className="flex items-center space-x-2 p-2">
           <button
-            onClick={handlePlayPause}
+            onClick={isUser ? handlePlayPause : handleTextToSpeech}
             className={`w-8 h-8 rounded-full flex items-center justify-center
               ${isUser ? "bg-white/20" : "bg-[#F27405]"}`}
           >
-            {isPlaying ? (
+            {isLoadingVoice ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : isPlaying ? (
               <Pause
                 size={18}
                 className={isUser ? "text-white" : "text-white"}
