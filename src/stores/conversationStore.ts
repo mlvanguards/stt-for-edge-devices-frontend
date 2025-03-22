@@ -1,31 +1,33 @@
 import { create } from "zustand";
 import { ConversationResponse } from "../services/api";
 
+export interface ConversationHistory {
+  user: "model" | "user";
+  transcription: string;
+  audio: string;
+}
+
 interface ConversationStore {
-  // State
+  history: ConversationHistory[];
   currentConversation: ConversationResponse | null;
-  conversationHistory: ConversationResponse[];
-
-  // Actions
-
+  addToHistory: (history: ConversationHistory) => void;
+  modifyLastHistoryEntry: (history: ConversationHistory) => void;
   setCurrentConversation: (conversation: ConversationResponse | null) => void;
-  clearCurrentConversation: () => void;
 }
 
 export const useConversationStore = create<ConversationStore>((set) => ({
-  // Initial state
+  history: [],
   currentConversation: null,
-  conversationHistory: [],
-
-  // Actions
+  addToHistory: (history) =>
+    set((state) => ({ history: [...state.history, history] })),
+  modifyLastHistoryEntry: (history) =>
+    set((state) => ({
+      history: [...state.history.slice(0, -1), history],
+    })),
   setCurrentConversation: (conversation) => {
     set({ currentConversation: conversation });
     if (conversation?.conversation_id) {
       localStorage.setItem("conversation_id", conversation.conversation_id);
     }
-  },
-  clearCurrentConversation: () => {
-    set({ currentConversation: null });
-    localStorage.removeItem("conversation_id");
   },
 }));

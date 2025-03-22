@@ -5,7 +5,7 @@ import { useVoiceStore } from "../stores/voiceStore";
 export const useBotVoice = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const { voices, selectedVoiceId, setSelectedVoiceId, setVoices } =
+  const { voices, selectedVoice, setSelectedVoice, setVoices } =
     useVoiceStore();
 
   useEffect(() => {
@@ -18,6 +18,7 @@ export const useBotVoice = () => {
     try {
       const response = await api.getAvailableVoices();
       setVoices(response.voices);
+      setSelectedVoice(response.voices[0]);
     } catch (error) {
       console.error("Error fetching voices:", error);
     } finally {
@@ -27,8 +28,8 @@ export const useBotVoice = () => {
 
   return {
     voices,
-    voiceId: selectedVoiceId,
-    setVoiceId: setSelectedVoiceId,
+    selectedVoice,
+    setSelectedVoice,
     isLoading,
   };
 };

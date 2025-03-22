@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { STTModel, api } from "../services/api";
+import { api } from "../services/api";
+import { useSTTModelStore } from "../stores/modelStore";
 
 export const useSTTModels = () => {
-  const [models, setModels] = useState<STTModel[]>([]);
-  const [selectedModel, setSelectedModel] = useState<STTModel | null>(null);
+  const { setCurrentModel, setModels } = useSTTModelStore();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export const useSTTModels = () => {
         const defaultModel = response.models.find(
           (model) => model.id === response.default_model
         );
-        setSelectedModel(defaultModel || null);
+        setCurrentModel(defaultModel || null);
       } catch (error) {
         console.error("Error fetching STT models:", error);
       } finally {
@@ -24,7 +24,8 @@ export const useSTTModels = () => {
       }
     };
     fetchModels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { models, selectedModel, setSelectedModel, isLoading };
+  return { isLoading };
 };

@@ -5,6 +5,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 export interface ConversationCreate {
   system_prompt?: string;
   voice_id?: string | null;
+  stt_model_id?: string | null;
 }
 
 export interface ConversationResponse {

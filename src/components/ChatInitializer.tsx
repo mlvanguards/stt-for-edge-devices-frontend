@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { useConversationStore } from "../stores/conversationStore";
 
-export const ChatInitializer = () => {
+const ChatInitializer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasExistingChat, setHasExistingChat] = useState(false);
   const { setCurrentConversation } = useConversationStore();
@@ -47,3 +47,5 @@ export const ChatInitializer = () => {
 
   return null;
 };
+
+export default ChatInitializer;

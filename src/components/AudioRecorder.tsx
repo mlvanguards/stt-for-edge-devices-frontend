@@ -2,10 +2,14 @@ import { useState, useRef } from "react";
 import { Mic, Trash2, Play } from "lucide-react";
 
 interface AudioRecorderProps {
-  onRecordingComplete: (blob: Blob, transcript: string) => void;
+  onRecordingComplete: (blob: Blob) => void;
+  disabled: boolean;
 }
 
-const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
+const AudioRecorder = ({
+  onRecordingComplete,
+  disabled,
+}: AudioRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
@@ -40,7 +44,7 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
       recorder.onstop = () => {
         if (!isDragging) {
           const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
-          onRecordingComplete(audioBlob, "Voice message");
+          onRecordingComplete(audioBlob);
         }
         chunksRef.current = [];
         setRecordingDuration(0);
@@ -113,6 +117,7 @@ const AudioRecorder = ({ onRecordingComplete }: AudioRecorderProps) => {
           className={`min-w-14 h-14 md:min-w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-200
           hover:opacity-90 active:scale-95
           ${isRecording ? "bg-red-500 scale-110" : "bg-[#F27405]"}`}
+          disabled={disabled}
         >
           {isRecording ? (
             <Mic className="text-white" size={isMobile ? 24 : 28} />

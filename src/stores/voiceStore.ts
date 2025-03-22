@@ -8,21 +8,15 @@ interface Voice {
 }
 
 interface VoiceStore {
-  // State
   voices: Voice[];
-  selectedVoiceId: string | null;
-
-  // Actions
-  setSelectedVoiceId: (id: string) => void;
+  selectedVoice: Voice | null;
+  setSelectedVoice: (voice: Voice) => void;
   setVoices: (voices: Voice[]) => void;
 }
 
 export const useVoiceStore = create<VoiceStore>((set) => ({
-  // Initial state
   voices: [],
-  selectedVoiceId: null,
-
-  // Actions
-  setSelectedVoiceId: (id) => set({ selectedVoiceId: id }),
+  selectedVoice: null,
+  setSelectedVoice: (voice) => set({ selectedVoice: voice }),
   setVoices: (voices) => set({ voices }),
 }));
