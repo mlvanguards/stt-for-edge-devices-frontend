@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import AudioMessage from "./AudioMessage";
 import AudioRecorder from "./AudioRecorder";
 import ChatInitializer from "./ChatInitializer";
@@ -16,6 +16,16 @@ const ChatContainer = () => {
     sendAudioMessage,
     fetchConversation,
   } = useConversation();
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [history, isSendingAudio]);
 
   const onNewRecording = async (blob: Blob) => {
     if (!currentConversation) {
@@ -69,6 +79,7 @@ const ChatContainer = () => {
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="flex items-center space-x-4">
