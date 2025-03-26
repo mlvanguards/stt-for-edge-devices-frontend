@@ -3,8 +3,6 @@ import { create } from "zustand";
 interface Voice {
   voice_id: string;
   name: string;
-  preview_url: string;
-  category: "premade";
 }
 
 interface VoiceStore {

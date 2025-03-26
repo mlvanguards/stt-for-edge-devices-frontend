@@ -94,9 +94,7 @@ export const api = {
   },
 
   async getAvailableVoices() {
-    const response = await axios.get(
-      `${BASE_URL}/available_voices_available_voices_get`
-    );
+    const response = await axios.get(`${BASE_URL}/available_voices`);
     return response.data;
   },
 };
