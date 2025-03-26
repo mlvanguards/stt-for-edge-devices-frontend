@@ -85,6 +85,14 @@ export const useConversation = () => {
     }
   };
 
+  const deleteStoredConversation = async (conversationId: string) => {
+    try {
+      await api.deleteConversation(conversationId);
+    } catch (err) {
+      console.error("Error deleting conversation:", err);
+    }
+  };
+
   return {
     isCreating,
     isSendingAudio,
@@ -92,5 +100,6 @@ export const useConversation = () => {
     createConversation,
     sendAudioMessage,
     fetchConversation,
+    deleteStoredConversation,
   };
 };

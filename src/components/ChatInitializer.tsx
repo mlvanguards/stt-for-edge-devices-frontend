@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { useConversationStore } from "../stores/conversationStore";
+import { useVoiceStore } from "../stores/voiceStore";
 
 const ChatInitializer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasExistingChat, setHasExistingChat] = useState(false);
   const { setCurrentConversation } = useConversationStore();
+  const { selectedVoice } = useVoiceStore();
 
   useEffect(() => {
     const initializeChat = async () => {
@@ -39,7 +41,7 @@ const ChatInitializer = () => {
           👋 Welcome little one!
         </h1>
         <p className="text-2xl text-gray-400">
-          Start chatting with 🤖 Jessica the AI.
+          Start chatting with 🤖 {selectedVoice?.name ?? "Jessica"} the AI.
         </p>
       </div>
     );

@@ -3,11 +3,22 @@ import ChatContainer from "./components/ChatContainer";
 import { useSTTModelStore } from "./stores/modelStore";
 import { useVoiceStore } from "./stores/voiceStore";
 import { useVoices } from "./hooks/useVoices";
+import { useConversation } from "./hooks/useConversation";
+import { useEffect } from "react";
 function App() {
   const { isLoading: isLoadingSTTModels } = useSTTModels();
   const { models, currentModel, setCurrentModel } = useSTTModelStore();
   const { isLoading: isLoadingVoices } = useVoices();
   const { voices, selectedVoice, setSelectedVoice } = useVoiceStore();
+  const { deleteStoredConversation } = useConversation();
+
+  useEffect(() => {
+    const conversationId = localStorage.getItem("conversationId");
+    if (conversationId) {
+      deleteStoredConversation(conversationId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center p-4">
