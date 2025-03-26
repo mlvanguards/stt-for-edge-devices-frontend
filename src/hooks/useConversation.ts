@@ -87,6 +87,7 @@ export const useConversation = () => {
 
   const deleteStoredConversation = async (conversationId: string) => {
     try {
+      localStorage.removeItem("conversation_id");
       await api.deleteConversation(conversationId);
     } catch (err) {
       console.error("Error deleting conversation:", err);

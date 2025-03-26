@@ -41,7 +41,11 @@ const ChatInitializer = () => {
           👋 Welcome little one!
         </h1>
         <p className="text-2xl text-gray-400">
-          Start chatting with 🤖 {selectedVoice?.name ?? "Jessica"} the AI.
+          Start chatting with 🤖{" "}
+          {selectedVoice?.name ?? (
+            <div className="w-20 animate-pulse rounded-lg bg-gray-600/30 h-9" />
+          )}{" "}
+          the AI.
         </p>
       </div>
     );

@@ -13,7 +13,7 @@ function App() {
   const { deleteStoredConversation } = useConversation();
 
   useEffect(() => {
-    const conversationId = localStorage.getItem("conversationId");
+    const conversationId = localStorage.getItem("conversation_id");
     if (conversationId) {
       deleteStoredConversation(conversationId);
     }
