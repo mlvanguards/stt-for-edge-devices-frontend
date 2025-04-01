@@ -80,7 +80,7 @@ export const api = {
     const response = await axios.get<{
       models: STTModel[];
       default_model: string;
-    }>(`${BASE_URL}/available_stt_models`);
+    }>(`${BASE_URL}/available_models`);
     return response.data;
   },
 
